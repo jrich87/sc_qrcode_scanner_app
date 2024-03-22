@@ -2,8 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:sc_qrcode_scanner_app/models/qr_code.dart';
+import 'package:sc_qrcode_scanner_app/styling/common_styles.dart';
 import 'package:sc_qrcode_scanner_app/widgets/scanner_overlay_widget.dart';
 import 'package:sc_qrcode_scanner_app/widgets/validation_widget.dart';
+
+import 'custom_app_bar_widget.dart';
 
 class ScannerWidget extends StatefulWidget {
   const ScannerWidget({Key? key}) : super(key: key);
@@ -29,11 +32,11 @@ class _ScannerWidgetState extends State<ScannerWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: const Text('QR Code Scanner'),
-          actions: [IconButton(onPressed: (){
-            cameraController.switchCamera();
-          }, icon: const Icon(Icons.camera_rear_outlined))]
+      appBar: CustomAppBarWidget(
+        showSwitchCameraIcon: true,
+        onSwitchCamera: (){
+          cameraController.switchCamera();
+        }
       ),
       body: Stack(children:[
         MobileScanner(
