@@ -11,20 +11,15 @@ class ValidationService {
   static const String path = "validate";
   
   static Future<ValidationResponse> validate(ValidationRequest request) async {
-    // return ValidationResponse(status: "success");
+    return ValidationResponse(status: 'failure');
+    final uri = Uri.https(url, path, request.toParams());
+    Response res = await get(uri);
 
-    debugPrint('Parameters: ${request.toParams()}');
-    var uri = Uri.https(url, path, request.toParams());
-    try {
-      Response res = await get(uri);
-      if (res.statusCode == 200) {
-        return ValidationResponse.fromJson(jsonDecode(res.body));
-      } else {
-        return ValidationResponse(
-            status: 'error', exception: 'HTTP status code: ${res.statusCode}');
-      }
-    } catch (e) {
-      return ValidationResponse(status: 'error', exception: e.toString());
+    debugPrint('HTTP Status Code: ${res.statusCode}');
+    if (res.statusCode == 200) {
+      return ValidationResponse.fromJson(jsonDecode(res.body));
+    } else {
+      throw Exception('HTTP Status Code: ${res.statusCode}');
     }
   }
 }

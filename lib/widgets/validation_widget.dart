@@ -14,33 +14,57 @@ class ValidationWidget extends StatefulWidget {
 }
 
 class _ValidationWidgetState extends State<ValidationWidget> {
-  ValidationResponse? response;
+  late Future<ValidationResponse> futureResponse;
 
   @override
   void initState() {
     super.initState();
-    validateQRCode();
+    futureResponse = ValidationService.validate(widget.qrCode.toValidationRequest());
   }
 
-  void validateQRCode() {
-    ValidationService.validate(widget.qrCode.toValidationRequest()).then((res) {
-      setState(() {
-        response = res;
-      });
-    });
+  AppBar buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text('QR Code Scanner'),
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.pop(
+              context,
+              MaterialPageRoute(builder: (context) => const ScannerWidget()),
+            );
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<ValidationResponse>(
+      future: futureResponse,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return buildLoading(context);
+        } else if (snapshot.hasError) {
+          return buildError(context);
+        } else {
+          switch (snapshot.data?.status) {
+            case 'success':
+              return buildSuccess(context);
+            case 'failure':
+              return buildFailure(context);
+            default:
+              return buildError(context);
+          }
+        }
+      },
+    );
   }
 
   Widget buildLoading(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: const Text('QR Code Scanner'),
-            actions: [IconButton(onPressed: (){
-              Navigator.pop(
-                context,
-                MaterialPageRoute(builder: (context) => const ScannerWidget()),
-              );
-            }, icon: const Icon(Icons.arrow_back))]
-        ),
+        appBar: buildAppBar(context),
         body: Container(
           color: Colors.grey,
           child: const Center(
@@ -59,15 +83,7 @@ class _ValidationWidgetState extends State<ValidationWidget> {
 
   Widget buildSuccess(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('QR Code Scanner'),
-        actions: [IconButton(onPressed: (){
-          Navigator.pop(
-            context,
-            MaterialPageRoute(builder: (context) => const ScannerWidget()),
-          );
-        }, icon: const Icon(Icons.arrow_back))]
-      ),
+      appBar: buildAppBar(context),
       body: Container(
         color: Colors.green,
         child: const Center(
@@ -85,15 +101,7 @@ class _ValidationWidgetState extends State<ValidationWidget> {
 
   Widget buildFailure(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('QR Code Scanner'),
-        actions: [IconButton(onPressed: (){
-          Navigator.pop(
-            context,
-            MaterialPageRoute(builder: (context) => const ScannerWidget()),
-          );
-        }, icon: const Icon(Icons.arrow_back))]
-      ),
+      appBar: buildAppBar(context),
       body: Container(
         color: Colors.red,
         child: const Center(
@@ -111,15 +119,7 @@ class _ValidationWidgetState extends State<ValidationWidget> {
 
   Widget buildError(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('QR Code Scanner'),
-        actions: [IconButton(onPressed: (){
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const ScannerWidget()),
-          );
-        }, icon: const Icon(Icons.arrow_back))]
-      ),
+      appBar: buildAppBar(context),
       body: Container(
         color: Colors.grey,
         child: Center(
@@ -141,18 +141,5 @@ class _ValidationWidgetState extends State<ValidationWidget> {
         ),
       )
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (response == null) {
-      return buildLoading(context);
-    } else if (response?.status == 'success') {
-      return buildSuccess(context);
-    } else if (response?.status == 'failure') {
-      return buildFailure(context);
-    } else {
-      return buildError(context);
-    }
   }
 }
