@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:sc_qrcode_scanner_app/models/qr_code.dart';
-import 'package:sc_qrcode_scanner_app/qrscanneroverlay.dart';
+import 'package:sc_qrcode_scanner_app/widgets/scanner_overlay_widget.dart';
 import 'package:sc_qrcode_scanner_app/widgets/validation_widget.dart';
 
 class ScannerWidget extends StatefulWidget {
@@ -58,7 +58,7 @@ class _ScannerWidgetState extends State<ScannerWidget> {
             }
           },
         ),
-        QRScannerOverlay(overlayColour: Colors.black.withOpacity(0.5))
+        QRScannerOverlayWidget(overlayColour: Colors.black.withOpacity(0.5))
       ]),
     );
   }
